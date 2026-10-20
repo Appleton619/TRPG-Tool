@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfiniteTRPG｜玩家輔助面板</title>
+<style>
+:root{
+  --bg:#10131b;--panel:#191f2b;--panel2:#202938;--line:#303b4e;
+  --text:#edf1f7;--muted:#9aa8ba;--gold:#d7ad67;--gold2:#f0cf91;
+  --blue:#83b7d8;--red:#df7777;--green:#83c6a0;--shadow:0 12px 32px #0005;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 15% 0%,#263044 0,transparent 38%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Microsoft JhengHei",sans-serif;min-height:100vh}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.sidebar{background:#121823;border-right:1px solid var(--line);padding:25px 17px;display:flex;flex-direction:column;gap:22px}
+.brand{padding:7px 10px 22px;border-bottom:1px solid var(--line)}
+.brand-mark{color:var(--gold);font-size:12px;letter-spacing:3px;font-weight:800}
+.brand h1{font-size:23px;margin:7px 0 3px;letter-spacing:1px}
+.brand p{font-size:12px;color:var(--muted);margin:0}
+.nav{display:grid;gap:8px}
+.nav button{border:1px solid transparent;background:transparent;color:var(--muted);padding:12px 13px;border-radius:11px;text-align:left;display:flex;gap:12px;align-items:center;transition:.2s}
+.nav button:hover,.nav button.active{background:#263143;color:var(--gold2);border-color:#45536a}
+.nav .ico{width:22px;text-align:center;font-size:17px}
+.side-note{margin-top:auto;padding:14px;background:#1b2432;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:12px;line-height:1.7}
+main{padding:30px clamp(18px,4vw,55px) 55px;max-width:1500px;width:100%;margin:auto}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:28px}
+.eyebrow{font-size:11px;letter-spacing:2px;color:var(--gold);font-weight:800}
+h2{font-size:27px;margin:5px 0 0}
+.top-actions{display:flex;align-items:center;gap:10px}
+.pill{border:1px solid var(--line);border-radius:99px;padding:8px 13px;color:var(--muted);font-size:12px;background:#171e29}
+.discord{color:var(--blue);text-decoration:none;border:1px solid #45647a;padding:9px 13px;border-radius:9px;font-size:13px}
+.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:17px}
+.card{background:linear-gradient(145deg,#1c2431,#171e29);border:1px solid var(--line);border-radius:15px;padding:19px;box-shadow:var(--shadow);min-width:0}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
+.card h3{font-size:16px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:5px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+.stat{padding:14px;background:#222d3d;border:1px solid #344155;border-radius:12px}
+.stat small{color:var(--muted);font-size:11px}.stat strong{display:block;font-size:24px;margin-top:5px;color:var(--gold2)}
+.hp-line{display:flex;justify-content:space-between;font-size:13px;margin:15px 0 8px}
+.bar{height:10px;border-radius:99px;background:#303a49;overflow:hidden}.bar>i{display:block;height:100%;background:linear-gradient(90deg,#a64e56,#e18b76);border-radius:99px;transition:width .25s}
+.field{display:grid;gap:6px;margin-bottom:13px}.field label{font-size:12px;color:var(--muted)}
+input,textarea,select{width:100%;background:#111925;border:1px solid #39465a;border-radius:9px;padding:10px 11px;color:var(--text);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--gold)}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+.btn{border:1px solid #5d4e36;background:#59472d;color:#ffe4b5;padding:9px 13px;border-radius:9px;font-size:13px}
+.btn:hover{filter:brightness(1.15)}.btn.secondary{background:#263244;border-color:#45546b;color:#dce7f4}
+.btn.danger{background:#47272d;border-color:#78434a;color:#ffc1c1}
+.btn.small{padding:6px 9px;font-size:12px}
+.muted{color:var(--muted)}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed #435067;border-radius:11px;font-size:13px}
+.list{display:grid;gap:10px}
+.item{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:13px;background:#202a39;border:1px solid #354256;border-radius:11px}
+.item strong{font-size:14px}.item p{font-size:12px;color:var(--muted);margin:5px 0 0;white-space:pre-wrap}
+.item-actions{display:flex;gap:6px;flex-shrink:0}
+.tag{font-size:11px;color:var(--gold2);border:1px solid #6b593b;border-radius:99px;padding:3px 8px;white-space:nowrap}
+.output{background:#101722;border:1px solid #35445a;border-radius:11px;padding:15px;white-space:pre-wrap;line-height:1.7;font-size:13px;min-height:120px}
+.notice{font-size:12px;line-height:1.7;color:var(--muted);background:#172333;border-left:3px solid var(--blue);padding:11px 13px;border-radius:5px}
+.section-intro{color:var(--muted);font-size:13px;margin:-13px 0 19px;line-height:1.7}
+.footer{text-align:center;color:#66758a;font-size:11px;margin-top:30px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{padding:13px;gap:10px;border-right:0;border-bottom:1px solid var(--line)}.brand{padding:4px 7px 10px}.brand h1{font-size:19px}.nav{display:flex;overflow-x:auto}.nav button{white-space:nowrap;padding:9px 11px}.side-note{display:none}main{padding:22px 15px 40px}.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}}
+@media(max-width:520px){.topbar{align-items:flex-start;flex-direction:column}.stat-grid{grid-template-columns:repeat(2,1fr)}.row{flex-direction:column}.item{flex-direction:column}.item-actions{width:100%}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">INFINITE · TRPG</div><h1>玩家輔助面板</h1><p>你的冒險資料，一處整理</p></div>
+  <nav class="nav" aria-label="主要導覽">
+    <button class="active" data-page="home"><span class="ico">⌂</span>冒險總覽</button>
+    <button data-page="character"><span class="ico">♙</span>角色狀態</button>
+    <button data-page="inventory"><span class="ico">▣</span>背包物品</button>
+    <button data-page="dungeon"><span class="ico">⌖</span>副本紀錄</button>
+    <button data-page="journal"><span class="ico">▤</span>冒險日誌</button>
+    <button data-page="action"><span class="ico">➤</span>行動產生器</button>
+  </nav>
+  <div class="side-note">✦ 玩家端輔助工具<br>正式劇情、擲骰與數值判定仍以 Discord GM／遊戲系統為準。</div>
+</aside>
+<main>
+  <header class="topbar">
+    <div><div class="eyebrow">PLAYER CONSOLE / 01</div><h2 id="pageTitle">冒險總覽</h2></div>
+    <div class="top-actions"><span class="pill">資料儲存於此瀏覽器</span><a class="discord" href="https://discord.com/app" target="_blank" rel="noopener">前往 Discord ↗</a></div>
+  </header>
+
+  <section class="page active" id="home">
+    <div class="grid">
+      <div class="card span-8">
+        <div class="card-head"><div><h3>角色概況</h3><div class="sub">目前使用中的角色資料</div></div><span class="tag">PLAYER STATUS</span></div>
+        <h2 id="homeName" style="font-size:23px;margin:0 0 4px">尚未命名的角色</h2>
+        <div class="sub" id="homeId">角色資料可在「角色狀態」編輯</div>
+        <div class="hp-line"><span>生命值 HP</span><strong id="homeHp">100 / 100</strong></div>
+        <div class="bar"><i id="homeHpBar" style="width:100%"></i></div>
+        <div class="stat-grid" style="margin-top:17px">
+          <div class="stat"><small>力量 STR</small><strong id="homeStr">10</strong></div>
+          <div class="stat"><small>敏捷 AGI</small><strong id="homeAgi">10</strong></div>
+          <div class="stat"><small>智力 INT</small><strong id="homeInt">10</strong></div>
+          <div class="stat"><small>運氣 LUK</small><strong id="homeLuck">5</strong></div>
+        </div>
+      </div>
+      <div class="card span-4">
+        <div class="card-head"><h3>冒險快捷資訊</h3><span class="tag">QUICK VIEW</span></div>
+        <div style="display:grid;gap:17px">
+          <div><div class="sub">目前副本</div><strong id="homeDungeon" style="display:block;margin-top:5px">尚未填寫</strong></div>
+          <div><div class="sub">副本難度</div><strong id="homeDifficulty" style="display:block;margin-top:5px">—</strong></div>
+          <div><div class="sub">背包物品</div><strong id="homeItems" style="display:block;margin-top:5px">0 件</strong></div>
+          <div><div class="sub">日誌紀錄</div><strong id="homeNotes" style="display:block;margin-top:5px">0 則</strong></div>
+        </div>
+      </div>
+      <div class="card span-7">
+        <div class="card-head"><h3>目前副本目標</h3><button class="btn secondary small" onclick="showPage('dungeon')">編輯副本</button></div>
+        <div id="homeObjective" class="muted" style="font-size:13px;line-height:1.8">尚未設定副本目標。進入「副本紀錄」填寫目前任務。</div>
+      </div>
+      <div class="card span-5">
+        <div class="card-head"><h3>快速行動</h3></div>
+        <p class="sub">整理想對 GM 宣告的行動，再複製到 Discord。</p>
+        <button class="btn" style="width:100%;margin-top:9px" onclick="showPage('action')">開啟行動訊息產生器 →</button>
+        <div class="notice" style="margin-top:14px">網站不會直接替玩家擲骰、扣除 HP 或改變副本狀態；請以 Discord 中 GM 的正式判定為準。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="character">
+    <p class="section-intro">編輯個人角色卡。這些資料只保存在目前使用的瀏覽器，不會自動同步到 Discord。</p>
+    <div class="grid">
+      <div class="card span-7">
+        <div class="card-head"><h3>基本資料</h3><span class="tag">CHARACTER SHEET</span></div>
+        <div class="field"><label for="charName">角色名稱</label><input id="charName" placeholder="輸入角色名稱"></div>
+        <div class="field"><label for="charId">角色／玩家識別備註</label><input id="charId" placeholder="例如：Discord 暱稱或角色代號"></div>
+        <div class="field"><label for="charBio">角色背景與備註</label><textarea id="charBio" placeholder="簡單記錄角色背景、性格或其他資訊"></textarea></div>
+        <div class="row">
+          <div class="field"><label for="hp">目前 HP</label><input id="hp" type="number" min="0"></div>
+          <div class="field"><label for="maxHp">最大 HP</label><input id="maxHp" type="number" min="1"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="strength">力量 STR</label><input id="strength" type="number" min="0"></div>
+          <div class="field"><label for="agility">敏捷 AGI</label><input id="agility" type="number" min="0"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="intelligence">智力 INT</label><input id="intelligence" type="number" min="0"></div>
+          <div class="field"><label for="luck">運氣 LUK</label><input id="luck" type="number" min="0"></div>
+        </div>
+        <button class="btn" onclick="saveCharacter()">儲存角色資料</button>
+      </div>
+      <div class="card span-5">
+        <div class="card-head"><h3>角色資料預覽</h3></div>
+        <div id="characterPreview" class="notice">儲存後會在此顯示角色摘要。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="inventory">
+    <p class="section-intro">記錄副本中取得或使用的物品。物品數量由玩家自行更新，正式效果以 GM 判定為準。</p>
+    <div class="grid">
+      <div class="card span-5">
+        <div class="card-head"><h3 id="itemFormTitle">新增物品</h3></div>
+        <div class="field"><label for="itemName">物品名稱</label><input id="itemName" placeholder="例如：老舊鑰匙"></div>
+        <div class="row">
+          <div class="field"><label for="itemQty">數量</label><input id="itemQty" type="number" min="1" value="1"></div>
+          <div class="field"><label for="itemType">分類</label><select id="itemType"><option>一般物品</option><option>消耗品</option><option>裝備</option><option>任務物品</option><option>線索</option></select></div>
+        </div>
+        <div class="field"><label for="itemDesc">效果／備註</label><textarea id="itemDesc" placeholder="記錄物品用途或取得來源"></textarea></div>
+        <div class="row"><button class="btn" id="itemSaveBtn" onclick="saveItem()">新增物品</button><button class="btn secondary" onclick="resetItemForm()">清空</button></div>
+      </div>
+      <div class="card span-7">
+        <div class="card-head"><h3>物品清單</h3><span class="tag" id="itemCount">0 ITEMS</span></div>
+        <div class="list" id="itemList"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="dungeon">
+    <p class="section-intro">整理目前副本的已知資訊。未知的內容請留白，不要把推測當成 GM 已確認的設定。</p>
+    <div class="grid">
+      <div class="card span-7">
+        <div class="card-head"><h3>副本資訊</h3><span class="tag">DUNGEON LOG</span></div>
+        <div class="field"><label for="dName">副本名稱</label><input id="dName" placeholder="例如：廢棄學校"></div>
+        <div class="row">
+          <div class="field"><label for="dDifficulty">難度</label><select id="dDifficulty"><option value="">未設定</option><option>F</option><option>E</option><option>D</option><option>C</option><option>B</option><option>A</option><option>S</option></select></div>
+          <div class="field"><label for="dScene">目前場景／位置</label><input id="dScene" placeholder="例如：一樓走廊"></div>
+        </div>
+        <div class="field"><label for="dBackground">副本背景</label><textarea id="dBackground" placeholder="記錄 GM 已公開的背景資訊"></textarea></div>
+        <div class="field"><label for="dObjective">通關目標</label><textarea id="dObjective" placeholder="記錄已知的任務目標"></textarea></div>
+        <div class="field"><label for="dRules">特殊規則</label><textarea id="dRules" placeholder="記錄副本特殊規則"></textarea></div>
+        <button class="btn" onclick="saveDungeon()">儲存副本紀錄</button>
+      </div>
+      <div class="card span-5">
+        <div class="card-head"><h3>線索與注意事項</h3></div>
+        <div class="field"><label for="dClues">已知線索</label><textarea id="dClues" placeholder="例如：走廊盡頭的鐘在午夜會響起。"></textarea></div>
+        <div class="notice">建議將「GM 明確公布的資訊」與「玩家自行推測」分開記錄，避免討論時混淆。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="journal">
+    <p class="section-intro">建立自己的冒險筆記，記錄重要事件、NPC、敵人情報與待確認事項。</p>
+    <div class="grid">
+      <div class="card span-5">
+        <div class="card-head"><h3 id="noteFormTitle">新增日誌</h3></div>
+        <div class="field"><label for="noteTitle">標題</label><input id="noteTitle" placeholder="例如：地下室的異常聲音"></div>
+        <div class="field"><label for="noteCategory">分類</label><select id="noteCategory"><option>事件</option><option>線索</option><option>NPC</option><option>敵人</option><option>推測</option><option>待辦事項</option></select></div>
+        <div class="field"><label for="noteBody">內容</label><textarea id="noteBody" placeholder="輸入冒險過程中的重要紀錄"></textarea></div>
+        <div class="row"><button class="btn" id="noteSaveBtn" onclick="saveNote()">新增紀錄</button><button class="btn secondary" onclick="resetNoteForm()">清空</button></div>
+      </div>
+      <div class="card span-7">
+        <div class="card-head"><h3>日誌列表</h3><span class="tag" id="noteCount">0 NOTES</span></div>
+        <div class="list" id="noteList"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="action">
+    <p class="section-intro">把玩家意圖整理成清楚的文字，再貼回 Discord。這個工具不會自行判定行動成功與否。</p>
+    <div class="grid">
+      <div class="card span-6">
+        <div class="card-head"><h3>建立行動</h3><span class="tag">ACTION BUILDER</span></div>
+        <div class="field"><label for="actionCharacter">角色名稱</label><input id="actionCharacter" placeholder="自動帶入角色名稱"></div>
+        <div class="field"><label for="actionType">行動類型</label><select id="actionType"><option>調查</option><option>移動</option><option>交涉</option><option>戰鬥</option><option>使用物品</option><option>觀察</option><option>其他</option></select></div>
+        <div class="field"><label for="actionTarget">行動目標</label><input id="actionTarget" placeholder="例如：檢查走廊盡頭的門"></div>
+        <div class="field"><label for="actionDetail">具體行動描述</label><textarea id="actionDetail" placeholder="描述角色打算怎麼做、想確認什麼事情。"></textarea></div>
+        <div class="field"><label for="actionExtra">補充資訊（選填）</label><input id="actionExtra" placeholder="例如：使用手電筒照明"></div>
+        <button class="btn" style="width:100%" onclick="makeAction()">產生訊息預覽</button>
+      </div>
+      <div class="card span-6">
+        <div class="card-head"><h3>Discord 訊息預覽</h3></div>
+        <div class="output" id="actionOutput">填寫左側資料後，按下「產生訊息預覽」。</div>
+        <button class="btn" style="width:100%;margin-top:12px" onclick="copyAction()">複製訊息</button>
+        <div class="notice" style="margin-top:14px">複製後切換至 Discord，貼到 GM 指定的跑團頻道。若遊戲有指定格式，請優先遵守 GM 的格式。</div>
+      </div>
+    </div>
+  </section>
+  <div class="footer">INFINITETRPG PLAYER CONSOLE · 本機資料工具 · 以 Discord 正式遊戲紀錄為準</div>
+</main>
+</div>
+<script>
+const KEY='infiniteTRPG_player_helper_v1';
+const defaults={
+ character:{name:'',id:'',bio:'',hp:100,maxHp:100,strength:10,agility:10,intelligence:10,luck:5},
+ items:[],notes:[],
+ dungeon:{name:'',difficulty:'',scene:'',background:'',objective:'',rules:'',clues:''}
+};
+let data=loadData(),editingItem=null,editingNote=null,lastAction='';
+function loadData(){try{const saved=JSON.parse(localStorage.getItem(KEY));return saved?{...structuredClone(defaults),...saved,character:{...defaults.character,...(saved.character||{})},dungeon:{...defaults.dungeon,...(saved.dungeon||{})},items:saved.items||[],notes:saved.notes||[]}:structuredClone(defaults)}catch(e){return structuredClone(defaults)}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(data));renderAll()}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const names={home:'冒險總覽',character:'角色狀態',inventory:'背包物品',dungeon:'副本紀錄',journal:'冒險日誌',action:'行動產生器'};document.getElementById('pageTitle').textContent=names[id]||'冒險總覽';if(id==='character')fillCharacter();if(id==='dungeon')fillDungeon();if(id==='action')document.getElementById('actionCharacter').value=data.character.name}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+function num(id,fallback=0){const v=Number(document.getElementById(id).value);return Number.isFinite(v)?v:fallback}
+function saveCharacter(){const c=data.character;c.name=document.getElementById('charName').value.trim();c.id=document.getElementById('charId').value.trim();c.bio=document.getElementById('charBio').value;c.maxHp=Math.max(1,num('maxHp',100));c.hp=Math.max(0,Math.min(c.maxHp,num('hp',100)));['strength','agility','intelligence','luck'].forEach(k=>c[k]=Math.max(0,num(k,0)));persist();alert('角色資料已儲存。')}
+function fillCharacter(){const c=data.character;[['charName','name'],['charId','id'],['charBio','bio'],['hp','hp'],['maxHp','maxHp'],['strength','strength'],['agility','agility'],['intelligence','intelligence'],['luck','luck']].forEach(([a,b])=>document.getElementById(a).value=c[b]??'')}
+function saveDungeon(){const d=data.dungeon;[['dName','name'],['dDifficulty','difficulty'],['dScene','scene'],['dBackground','background'],['dObjective','objective'],['dRules','rules'],['dClues','clues']].forEach(([a,b])=>d[b]=document.getElementById(a).value.trim());persist();alert('副本紀錄已儲存。')}
+function fillDungeon(){const d=data.dungeon;[['dName','name'],['dDifficulty','difficulty'],['dScene','scene'],['dBackground','background'],['dObjective','objective'],['dRules','rules'],['dClues','clues']].forEach(([a,b])=>document.getElementById(a).value=d[b]||'')}
+function resetItemForm(){editingItem=null;['itemName','itemDesc'].forEach(id=>document.getElementById(id).value='');document.getElementById('itemQty').value=1;document.getElementById('itemType').value='一般物品';document.getElementById('itemFormTitle').textContent='新增物品';document.getElementById('itemSaveBtn').textContent='新增物品'}
+function saveItem(){const name=document.getElementById('itemName').value.trim();if(!name){alert('請輸入物品名稱。');return}const obj={id:editingItem||crypto.randomUUID(),name,qty:Math.max(1,num('itemQty',1)),type:document.getElementById('itemType').value,desc:document.getElementById('itemDesc').value.trim()};if(editingItem)data.items=data.items.map(x=>x.id===editingItem?obj:x);else data.items.unshift(obj);resetItemForm();persist()}
+function editItem(id){const x=data.items.find(i=>i.id===id);if(!x)return;editingItem=id;document.getElementById('itemName').value=x.name;document.getElementById('itemQty').value=x.qty;document.getElementById('itemType').value=x.type;document.getElementById('itemDesc').value=x.desc;document.getElementById('itemFormTitle').textContent='編輯物品';document.getElementById('itemSaveBtn').textContent='儲存修改';showPage('inventory')}
+function deleteItem(id){if(confirm('確定刪除此物品？')){data.items=data.items.filter(x=>x.id!==id);persist()}}
+function resetNoteForm(){editingNote=null;['noteTitle','noteBody'].forEach(id=>document.getElementById(id).value='');document.getElementById('noteCategory').value='事件';document.getElementById('noteFormTitle').textContent='新增日誌';document.getElementById('noteSaveBtn').textContent='新增紀錄'}
+function saveNote(){const title=document.getElementById('noteTitle').value.trim(),body=document.getElementById('noteBody').value.trim();if(!title||!body){alert('請填寫日誌標題與內容。');return}const obj={id:editingNote||crypto.randomUUID(),title,body,category:document.getElementById('noteCategory').value,date:new Date().toLocaleString('zh-TW')};if(editingNote)data.notes=data.notes.map(x=>x.id===editingNote?{...obj,date:x.date}:x);else data.notes.unshift(obj);resetNoteForm();persist()}
+function editNote(id){const x=data.notes.find(n=>n.id===id);if(!x)return;editingNote=id;document.getElementById('noteTitle').value=x.title;document.getElementById('noteBody').value=x.body;document.getElementById('noteCategory').value=x.category;document.getElementById('noteFormTitle').textContent='編輯日誌';document.getElementById('noteSaveBtn').textContent='儲存修改';showPage('journal')}
+function deleteNote(id){if(confirm('確定刪除此筆紀錄？')){data.notes=data.notes.filter(x=>x.id!==id);persist()}}
+function makeAction(){const c=document.getElementById('actionCharacter').value.trim()||'未命名角色',type=document.getElementById('actionType').value,target=document.getElementById('actionTarget').value.trim(),detail=document.getElementById('actionDetail').value.trim(),extra=document.getElementById('actionExtra').value.trim();if(!target&&!detail){alert('請至少填寫行動目標或具體描述。');return}lastAction=`【${c}】\n行動類型：${type}\n行動目標：${target||'未指定'}\n行動描述：${detail||'未補充'}${extra?'\n補充資訊：'+extra:''}`;document.getElementById('actionOutput').textContent=lastAction}
+async function copyAction(){if(!lastAction)makeAction();if(!lastAction)return;try{await navigator.clipboard.writeText(lastAction);alert('已複製，可以貼到 Discord。')}catch(e){const t=document.createElement('textarea');t.value=lastAction;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();alert('已複製，可以貼到 Discord。')}}
+function renderAll(){const c=data.character,d=data.dungeon;document.getElementById('homeName').textContent=c.name||'尚未命名的角色';document.getElementById('homeId').textContent=c.id||'角色資料可在「角色狀態」編輯';document.getElementById('homeHp').textContent=`${c.hp} / ${c.maxHp}`;document.getElementById('homeHpBar').style.width=Math.max(0,Math.min(100,c.hp/c.maxHp*100))+'%';[['homeStr','strength'],['homeAgi','agility'],['homeInt','intelligence'],['homeLuck','luck']].forEach(([a,b])=>document.getElementById(a).textContent=c[b]);document.getElementById('homeDungeon').textContent=d.name||'尚未填寫';document.getElementById('homeDifficulty').textContent=d.difficulty||'—';document.getElementById('homeItems').textContent=data.items.length+' 件';document.getElementById('homeNotes').textContent=data.notes.length+' 則';document.getElementById('homeObjective').textContent=d.objective||'尚未設定副本目標。進入「副本紀錄」填寫目前任務。';document.getElementById('characterPreview').innerHTML=`<strong>${esc(c.name||'尚未命名')}</strong><p>HP：${c.hp} / ${c.maxHp}<br>力量：${c.strength}　敏捷：${c.agility}<br>智力：${c.intelligence}　運氣：${c.luck}</p><p>${esc(c.bio||'尚無角色背景備註')}</p>`;renderItems();renderNotes()}
+function renderItems(){document.getElementById('itemCount').textContent=data.items.length+' ITEMS';const el=document.getElementById('itemList');if(!data.items.length){el.innerHTML='<div class="empty">背包目前沒有物品，從左側新增第一件物品。</div>';return}el.innerHTML=data.items.map(x=>`<div class="item"><div><strong>${esc(x.name)}</strong> <span class="tag">${esc(x.type)}</span><p>數量：${x.qty}${x.desc?'<br>'+esc(x.desc):''}</p></div><div class="item-actions"><button class="btn secondary small" onclick="editItem('${x.id}')">編輯</button><button class="btn danger small" onclick="deleteItem('${x.id}')">刪除</button></div></div>`).join('')}
+function renderNotes(){document.getElementById('noteCount').textContent=data.notes.length+' NOTES';const el=document.getElementById('noteList');if(!data.notes.length){el.innerHTML='<div class="empty">尚無冒險日誌，記下第一個重要發現吧。</div>';return}el.innerHTML=data.notes.map(x=>`<div class="item"><div><strong>${esc(x.title)}</strong> <span class="tag">${esc(x.category)}</span><p>${esc(x.date)}<br>${esc(x.body)}</p></div><div class="item-actions"><button class="btn secondary small" onclick="editNote('${x.id}')">編輯</button><button class="btn danger small" onclick="deleteNote('${x.id}')">刪除</button></div></div>`).join('')}
+function renderAllSafe(){renderAll()}
+renderAll();
+</script>
+</body>
+</html>
